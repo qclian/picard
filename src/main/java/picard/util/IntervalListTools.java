@@ -10,9 +10,9 @@ import htsjdk.samtools.util.IntervalList;
 import htsjdk.samtools.util.Log;
 import htsjdk.variant.vcf.VCFFileReader;
 import org.broadinstitute.barclay.argparser.Argument;
+import org.broadinstitute.barclay.argparser.CommandLineParser.ClpEnum;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 import picard.PicardException;
-import picard.cmdline.CommandLineParser;
 import picard.cmdline.CommandLineProgram;
 import picard.cmdline.programgroups.Intervals;
 import picard.cmdline.StandardOptionDefinitions;
@@ -110,7 +110,7 @@ public class IntervalListTools extends CommandLineProgram {
 
     private static final Log LOG = Log.getInstance(IntervalListTools.class);
 
-    public enum Action implements CommandLineParser.ClpEnum {
+    public enum Action implements ClpEnum {
 
         CONCAT("The concatenation of all the INPUTs, no sorting or merging of overlapping/abutting intervals implied. Will result in an unsorted list unless requested otherwise.") {
             @Override
