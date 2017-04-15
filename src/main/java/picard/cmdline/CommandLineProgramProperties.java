@@ -41,6 +41,6 @@ import java.lang.annotation.ElementType;
 public @interface CommandLineProgramProperties {
     String usage();
     String usageShort();
-    Class<? extends CommandLineProgramGroup> programGroup() default None.class;
+    Class<? extends org.broadinstitute.barclay.argparser.CommandLineProgramGroup> programGroup() default None.class;
     boolean omitFromCommandLine() default false;
 }

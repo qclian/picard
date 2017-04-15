@@ -2,6 +2,8 @@ package picard.cmdline;
 
 import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.StringUtil;
+import org.broadinstitute.barclay.argparser.CommandLineProgramGroup;
+import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -118,7 +120,7 @@ public class PicardCommandLine {
             // No interfaces, synthetic, primitive, local, or abstract classes.
             if (!clazz.isInterface() && !clazz.isSynthetic() && !clazz.isPrimitive() && !clazz.isLocalClass()
                     && !Modifier.isAbstract(clazz.getModifiers())) {
-                final CommandLineProgramProperties property = getProgramProperty(clazz);
+                final org.broadinstitute.barclay.argparser.CommandLineProgramProperties property = getProgramProperty(clazz);
                 // Check for missing annotations
                 if (null == property) {
                     if (missingAnnotationClasses.isEmpty()) missingAnnotationClasses += clazz.getSimpleName();
@@ -164,8 +166,8 @@ public class PicardCommandLine {
         return null;
     }
 
-    public static CommandLineProgramProperties getProgramProperty(Class clazz) {
-        return (CommandLineProgramProperties)clazz.getAnnotation(CommandLineProgramProperties.class);
+    public static org.broadinstitute.barclay.argparser.CommandLineProgramProperties getProgramProperty(Class clazz) {
+        return (org.broadinstitute.barclay.argparser.CommandLineProgramProperties)clazz.getAnnotation(org.broadinstitute.barclay.argparser.CommandLineProgramProperties.class);
     }
 
     private static class SimpleNameComparator implements Comparator<Class> {
@@ -196,7 +198,7 @@ public class PicardCommandLine {
         final Map<Class, CommandLineProgramProperties> programsToProperty = new HashMap<Class, CommandLineProgramProperties>();
         for (final Class clazz : classes) {
             // Get the command line property for this command line program
-            final CommandLineProgramProperties property = getProgramProperty(clazz);
+            final org.broadinstitute.barclay.argparser.CommandLineProgramProperties property = getProgramProperty(clazz);
             if (null == property) {
                 throw new RuntimeException(String.format("The class '%s' is missing the required CommandLineProgramProperties annotation.", clazz.getSimpleName()));
             }
@@ -241,9 +243,9 @@ public class PicardCommandLine {
                 }
                 if (!commandListOnly) {
                     if (clazz.getSimpleName().length() >= 45) {
-                        builder.append(String.format("%s    %s    %s%s%s\n", KGRN, clazz.getSimpleName(), KCYN, property.usageShort(), KNRM));
+                        builder.append(String.format("%s    %s    %s%s%s\n", KGRN, clazz.getSimpleName(), KCYN, property.summary(), KNRM));
                     } else {
-                        builder.append(String.format("%s    %-45s%s%s%s\n", KGRN, clazz.getSimpleName(), KCYN, property.usageShort(), KNRM));
+                        builder.append(String.format("%s    %-45s%s%s%s\n", KGRN, clazz.getSimpleName(), KCYN, property.oneLineSummary(), KNRM));
                     }
                 }
                 else {
