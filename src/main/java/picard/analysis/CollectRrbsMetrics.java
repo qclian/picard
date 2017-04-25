@@ -24,10 +24,7 @@
 
 package picard.analysis;
 
-import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.SamReader;
-import htsjdk.samtools.SamReaderFactory;
+import htsjdk.samtools.*;
 import htsjdk.samtools.metrics.MetricsFile;
 import htsjdk.samtools.reference.ReferenceSequence;
 import htsjdk.samtools.reference.ReferenceSequenceFileWalker;
@@ -41,6 +38,7 @@ import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 import picard.PicardException;
 import picard.cmdline.CommandLineProgram;
 import picard.cmdline.StandardOptionDefinitions;
+import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
 import picard.cmdline.programgroups.Metrics;
 import picard.util.RExecutor;
 
@@ -103,8 +101,6 @@ private static final String R_SCRIPT = "picard/analysis/rrbsQc.R";
     public File INPUT;
     @Argument(doc = "Base name for output files", shortName = StandardOptionDefinitions.METRICS_FILE_SHORT_NAME)
     public String METRICS_FILE_PREFIX;
-    @Argument(doc = "The reference sequence fasta file", shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME)
-    public File REFERENCE;
     @Argument(doc = "Minimum read length")
     public int MINIMUM_READ_LENGTH = 5;
     @Argument(doc = "Threshold for base quality of a C base before it is considered")
@@ -127,6 +123,20 @@ private static final String R_SCRIPT = "picard/analysis/rrbsQc.R";
 
     private static final Log log = Log.getInstance(CollectRrbsMetrics.class);
 
+    // return a custom argument collection since this tool uses a (required) argument name
+    // of "REFERENCE", not "REFERENCE_SEQUENCE"
+    @Override
+    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+        return new CollectRrbsMetricsReferenceArgumentCollection();
+    }
+
+    public static class CollectRrbsMetricsReferenceArgumentCollection implements ReferenceArgumentCollection {
+        @Argument(doc = "The reference sequence fasta file", shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME)
+        public File REFERENCE;
+
+        public File getReferenceFile() { return REFERENCE; };
+    }
+
     public static void main(final String[] args) {
         new CollectRrbsMetrics().instanceMainWithExit(args);
     }
@@ -146,7 +156,7 @@ private static final String R_SCRIPT = "picard/analysis/rrbsQc.R";
             throw new PicardException("The input file " + INPUT.getAbsolutePath() + " does not appear to be coordinate sorted");
         }
 
-        final ReferenceSequenceFileWalker refWalker = new ReferenceSequenceFileWalker(REFERENCE);
+        final ReferenceSequenceFileWalker refWalker = new ReferenceSequenceFileWalker(REFERENCE_SEQUENCE);
         final ProgressLogger progressLogger = new ProgressLogger(log);
 
         final RrbsMetricsCollector metricsCollector = new RrbsMetricsCollector(METRIC_ACCUMULATION_LEVEL, samReader.getFileHeader().getReadGroups(),
@@ -186,7 +196,7 @@ private static final String R_SCRIPT = "picard/analysis/rrbsQc.R";
 
     private void assertIoFiles(final File summaryFile, final File detailsFile, final File plotsFile) {
         IOUtil.assertFileIsReadable(INPUT);
-        IOUtil.assertFileIsReadable(REFERENCE);
+        IOUtil.assertFileIsReadable(REFERENCE_SEQUENCE);
         IOUtil.assertFileIsWritable(summaryFile);
         IOUtil.assertFileIsWritable(detailsFile);
         IOUtil.assertFileIsWritable(plotsFile);

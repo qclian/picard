@@ -277,9 +277,6 @@ static final String USAGE_DETAILS = "<p>This tool is used to design custom bait 
     @Argument(doc = "The name of the bait design")
     public String DESIGN_NAME;
 
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, doc = "The reference sequence fasta file")
-    public File REFERENCE_SEQUENCE;
-
     @Argument(doc = "The left amplification primer to prepend to all baits for synthesis")
     public String LEFT_PRIMER = "ATCGCACCAGCGTGT";
 
@@ -337,6 +334,9 @@ static final String USAGE_DETAILS = "<p>This tool is used to design custom bait 
     // Utility objects
     private static final Log log = Log.getInstance(BaitDesigner.class);
     private final NumberFormat fmt = NumberFormat.getIntegerInstance();
+
+    @Override
+    protected boolean requiresReference() { return true; }
 
     /** Takes a target name and a bait index and creates a uniform bait name. */
     String makeBaitName(final String targetName, final int baitIndex, final int totalBaits) {

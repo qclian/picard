@@ -83,13 +83,18 @@ public abstract class CollectTargetedMetrics<METRIC extends MultilevelMetrics, C
             "considered 'near probe' and included in percent selected.")
     public int NEAR_DISTANCE = TargetedPcrMetricsCollector.NEAR_PROBE_DISTANCE_DEFAULT;
 
-    @Argument(shortName = MINIMUM_MAPPING_QUALITY_SHORT_NAME, doc = "Minimum mapping quality for a read to contribute coverage.", overridable = true)
+    //TODO: MINIMUM_MAPPING_QUALITY and MINIMUM_BASE_QUALITY are both annotated as required,
+    // but since both are primitive types (and thus always have a value), the CLP ALWAYS treats
+    // them as optional since they appear to have been provided. If that's intentional, they
+    // should be annotated as optional=true. If they're required, we should make them uninitialized
+    // reference types.
+    @Argument(shortName = MINIMUM_MAPPING_QUALITY_SHORT_NAME, doc = "Minimum mapping quality for a read to contribute coverage.")
     public int MINIMUM_MAPPING_QUALITY = 1;
 
-    @Argument(shortName = "Q", doc = "Minimum base quality for a base to contribute coverage.", overridable = true)
+    @Argument(shortName = "Q", doc = "Minimum base quality for a base to contribute coverage.")
     public int MINIMUM_BASE_QUALITY = 0;
 
-    @Argument(doc = "True if we are to clip overlapping reads, false otherwise.", optional=true, overridable = true)
+    @Argument(doc = "True if we are to clip overlapping reads, false otherwise.", optional=true)
     public boolean CLIP_OVERLAPPING_READS = false;
 
     @Argument(shortName = "covMax", doc = "Parameter to set a max coverage limit for Theoretical Sensitivity calculations. Default is 200.", optional = true)

@@ -39,8 +39,12 @@ import htsjdk.samtools.util.Log;
 import htsjdk.variant.variantcontext.writer.Options;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import org.broadinstitute.barclay.argparser.Argument;
+import org.broadinstitute.barclay.argparser.ArgumentCollection;
 import org.broadinstitute.barclay.argparser.CommandLineParser;
 import org.broadinstitute.barclay.argparser.LegacyCommandLineArgumentParser;
+import picard.cmdline.argumentcollections.OptionalReferenceArgumentCollection;
+import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
+import picard.cmdline.argumentcollections.RequiredReferenceArgumentCollection;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -99,7 +103,9 @@ public abstract class CommandLineProgram {
     @Argument(doc="Whether to create an MD5 digest for any BAM or FASTQ files created.  ", common=true)
     public boolean CREATE_MD5_FILE = Defaults.CREATE_MD5;
 
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, doc = "Reference sequence file.", common = true, optional = true, overridable = true)
+    @ArgumentCollection
+    public ReferenceArgumentCollection referenceSequence = getReferenceArgumentCollection();
+
     public File REFERENCE_SEQUENCE = Defaults.REFERENCE_FASTA;
 
     @Argument(doc="Google Genomics API client_secrets.json file path.", common = true)
@@ -141,6 +147,14 @@ public abstract class CommandLineProgram {
     * @return program exit status.
     */
     protected abstract int doWork();
+
+    protected boolean requiresReference() { return false; }
+
+    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+        return requiresReference() ?
+                new RequiredReferenceArgumentCollection() :
+                new OptionalReferenceArgumentCollection();
+    }
 
     public void instanceMainWithExit(final String[] argv) {
         System.exit(instanceMain(argv));
@@ -243,6 +257,9 @@ public abstract class CommandLineProgram {
 
         commandLineParser = getCommandLineParser();
         final boolean ret = commandLineParser.parseArguments(System.err, argv);
+
+        REFERENCE_SEQUENCE = referenceSequence.getReferenceFile();
+
         commandLine = commandLineParser.getCommandLine();
         if (!ret) {
             return false;

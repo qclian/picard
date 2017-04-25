@@ -55,9 +55,6 @@ public class ScatterIntervalsByNs extends CommandLineProgram {
             "      O=output.interval_list" +
             "</pre>" +
             "<hr />";
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, doc = "Reference sequence to use.")
-    public File REFERENCE;
-
     @Argument(shortName = StandardOptionDefinitions.OUTPUT_SHORT_NAME, doc = "Output file for interval list.")
     public File OUTPUT;
 
@@ -97,11 +94,14 @@ public class ScatterIntervalsByNs extends CommandLineProgram {
     }
 
     @Override
+    protected boolean requiresReference() { return true; }
+
+    @Override
     protected int doWork() {
-        IOUtil.assertFileIsReadable(REFERENCE);
+        IOUtil.assertFileIsReadable(REFERENCE_SEQUENCE);
         IOUtil.assertFileIsWritable(OUTPUT);
 
-        final ReferenceSequenceFile refFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(REFERENCE, true);
+        final ReferenceSequenceFile refFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(REFERENCE_SEQUENCE, true);
 
         // get the intervals
         final IntervalList intervals = segregateReference(refFile, MAX_TO_MERGE);

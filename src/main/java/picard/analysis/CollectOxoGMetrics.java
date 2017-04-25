@@ -102,10 +102,6 @@ public class CollectOxoGMetrics extends CommandLineProgram {
             doc = "Location of output metrics file to write.")
     public File OUTPUT;
 
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME,
-            doc = "Reference sequence to which BAM is aligned.")
-    public File REFERENCE_SEQUENCE;
-
     @Argument(doc = "An optional list of intervals to restrict analysis to.",
             optional = true)
     public File INTERVALS;
@@ -217,6 +213,9 @@ public class CollectOxoGMetrics extends CommandLineProgram {
     public static void main(final String[] args) {
         new CollectOxoGMetrics().instanceMainWithExit(args);
     }
+
+    @Override
+    protected boolean requiresReference() { return true; }
 
     @Override
     protected String[] customCommandLineValidation() {

@@ -74,12 +74,7 @@ public class SetNmMdAndUqTags extends CommandLineProgram {
     public boolean IS_BISULFITE_SEQUENCE = false;
 
     @Override
-    protected String[] customCommandLineValidation() {
-        if (REFERENCE_SEQUENCE == null) {
-            return new String[]{"Must have a non-null REFERENCE_SEQUENCE"};
-        }
-        return super.customCommandLineValidation();
-    }
+    protected boolean requiresReference() { return true; }
 
     private final Log log = Log.getInstance(SetNmMdAndUqTags.class);
 

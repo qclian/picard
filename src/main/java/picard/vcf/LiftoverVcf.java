@@ -28,6 +28,7 @@ import picard.cmdline.CommandLineProgram;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 import org.broadinstitute.barclay.argparser.Argument;
 import picard.cmdline.StandardOptionDefinitions;
+import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
 import picard.cmdline.programgroups.VcfOrBcf;
 
 import java.io.File;
@@ -82,11 +83,6 @@ public class LiftoverVcf extends CommandLineProgram {
     @Argument(doc="File to which to write rejected records.")
     public File REJECT;
 
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, common=false,
-            doc = "The reference sequence (fasta) for the TARGET genome build.  The fasta file must have an " +
-                    "accompanying sequence dictionary (.dict file).")
-    public File REFERENCE_SEQUENCE = Defaults.REFERENCE_FASTA;
-
     // Option on whether or not to provide a warning, or error message and exit if a missing contig is encountered
     @Argument(shortName = "WMC", doc = "Warn on missing contig.", optional = true)
     public boolean WARN_ON_MISSING_CONTIG = false;
@@ -133,6 +129,21 @@ public class LiftoverVcf extends CommandLineProgram {
     );
 
     private final Log log = Log.getInstance(LiftoverVcf.class);
+
+    @Override
+    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+        return new ReferenceArgumentCollection() {
+            @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, common=false,
+                    doc = "The reference sequence (fasta) for the TARGET genome build.  The fasta file must have an " +
+                            "accompanying sequence dictionary (.dict file).")
+            public File REFERENCE_SEQUENCE;
+
+            @Override
+            public File getReferenceFile() {
+                return REFERENCE_SEQUENCE;
+            }
+        };
+    }
 
     // Stock main method
     public static void main(final String[] args) {

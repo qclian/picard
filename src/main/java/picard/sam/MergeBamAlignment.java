@@ -97,10 +97,6 @@ public class MergeBamAlignment extends CommandLineProgram {
             doc = "Merged SAM or BAM file to write to.")
     public File OUTPUT;
 
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME,
-            doc = "Path to the fasta file for the reference sequence.")
-    public File REFERENCE_SEQUENCE;
-
     @Argument(shortName = StandardOptionDefinitions.PROGRAM_RECORD_ID_SHORT_NAME,
             doc = "The program group ID of the aligner (if not supplied by the aligned file).",
             optional = true)
@@ -219,6 +215,8 @@ public class MergeBamAlignment extends CommandLineProgram {
     public AbstractAlignmentMerger.UnmappingReadStrategy UNMAPPED_READ_STRATEGY = AbstractAlignmentMerger.UnmappingReadStrategy.DO_NOT_CHANGE;
 
     private static final Log log = Log.getInstance(MergeBamAlignment.class);
+
+    protected boolean requiresReference() { return true; }
 
     /**
      * Mechanism to bridge between command line option and PrimaryAlignmentSelectionStrategy implementation.

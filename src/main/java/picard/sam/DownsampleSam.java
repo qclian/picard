@@ -88,7 +88,8 @@ public class DownsampleSam extends CommandLineProgram {
     @Argument(shortName="S", doc="The downsampling strategy to use. See usage for discussion.")
     public Strategy STRATEGY = Strategy.ConstantMemory;
 
-    @Argument(shortName = "R", doc = "Random seed to use if deterministic behavior is desired.  " +
+    // TODO: NOTE this change breaks command line compatibility
+    @Argument(shortName = "D", doc = "Random seed to use if deterministic behavior is desired.  " +
             "Setting to null will cause multiple invocations to produce different results.")
     public Integer RANDOM_SEED = 1;
 

@@ -96,14 +96,12 @@ static final String USAGE_DETAILS = "This tool takes a SAM/BAM file input and co
     @Argument(shortName = "N", doc = "Bait set name. If not provided it is inferred from the filename of the bait intervals.", optional = true)
     public String BAIT_SET_NAME;
 
-    @Argument(shortName = MINIMUM_MAPPING_QUALITY_SHORT_NAME, doc = "Minimum mapping quality for a read to contribute coverage.", overridable = true)
-    public int MINIMUM_MAPPING_QUALITY = 20;
-
-    @Argument(shortName = "Q", doc = "Minimum base quality for a base to contribute coverage.", overridable = true)
-    public int MINIMUM_BASE_QUALITY = 20;
-
-    @Argument(doc = "True if we are to clip overlapping reads, false otherwise.", optional=true, overridable = true)
-    public boolean CLIP_OVERLAPPING_READS = true;
+    public CollectHsMetrics() {
+        // Override inherited default values
+        MINIMUM_MAPPING_QUALITY = 20;
+        MINIMUM_BASE_QUALITY = 20;
+        CLIP_OVERLAPPING_READS = true;
+    }
 
     @Override
     protected IntervalList getProbeIntervals() {

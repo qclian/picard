@@ -43,6 +43,7 @@ import picard.PicardException;
 import picard.cmdline.CommandLineProgram;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 import picard.cmdline.StandardOptionDefinitions;
+import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
 import picard.cmdline.programgroups.SamOrBam;
 
 import java.io.File;
@@ -70,10 +71,6 @@ public class ReorderSam extends CommandLineProgram {
     @Argument(shortName = StandardOptionDefinitions.OUTPUT_SHORT_NAME, doc = "Output file (bam or sam) to write extracted reads to.")
     public File OUTPUT;
 
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, doc = "Reference sequence to reorder reads to match.  " +
-            "A sequence dictionary corresponding to the reference fasta is required.  Create one with CreateSequenceDictionary.jar.")
-    public File REFERENCE;
-
     @Argument(shortName = "S", doc = "If true, then allows only a partial overlap of the BAM contigs with the new reference " +
             "sequence contigs.  By default, this tool requires a corresponding contig in the new " +
             "reference for each read contig")
@@ -91,14 +88,31 @@ public class ReorderSam extends CommandLineProgram {
         new ReorderSam().instanceMainWithExit(argv);
     }
 
+    // return a custom argument collection because this tool uses the (required) argument name
+    // "REFERENCE" instead of "REFERENCE_SEQUENCE"
+    @Override
+    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+        return new ReorderSamReferenceArgumentCollection();
+    }
+
+    public static class ReorderSamReferenceArgumentCollection implements ReferenceArgumentCollection {
+        @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, common=false,
+                doc = "Reference sequence to reorder reads to match.  " +
+                        "A sequence dictionary corresponding to the reference fasta is required.  Create one with CreateSequenceDictionary.jar.")
+        public File REFERENCE;
+
+        @Override
+        public File getReferenceFile() { return REFERENCE; };
+    }
+
     protected int doWork() {
         IOUtil.assertFileIsReadable(INPUT);
-        IOUtil.assertFileIsReadable(REFERENCE);
+        IOUtil.assertFileIsReadable(REFERENCE_SEQUENCE);
         IOUtil.assertFileIsWritable(OUTPUT);
 
         final SamReader in = SamReaderFactory.makeDefault().referenceSequence(REFERENCE_SEQUENCE).open(INPUT);
 
-        ReferenceSequenceFile reference = ReferenceSequenceFileFactory.getReferenceSequenceFile(REFERENCE);
+        ReferenceSequenceFile reference = ReferenceSequenceFileFactory.getReferenceSequenceFile(REFERENCE_SEQUENCE);
         SAMSequenceDictionary refDict = reference.getSequenceDictionary();
 
         if (refDict == null) {

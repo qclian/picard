@@ -26,11 +26,8 @@ package picard.analysis;
 
 import htsjdk.samtools.util.Histogram;
 import htsjdk.samtools.util.IntervalList;
-import org.broadinstitute.barclay.argparser.Argument;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 import picard.cmdline.programgroups.Metrics;
-
-import static picard.cmdline.StandardOptionDefinitions.MINIMUM_MAPPING_QUALITY_SHORT_NAME;
 
 /**
  * Computes a number of metrics that are useful for evaluating coverage and performance of whole genome sequencing
@@ -75,17 +72,27 @@ public class CollectRawWgsMetrics extends CollectWgsMetrics{
             "<a href='https://broadinstitute.github.io/picard/picard-metric-definitions.html#CollectWgsMetrics.WgsMetrics'>" +
             "the WgsMetrics documentation</a> for detailed explanations of the output metrics." +
             "<hr />";
-    @Argument(shortName=MINIMUM_MAPPING_QUALITY_SHORT_NAME, doc="Minimum mapping quality for a read to contribute coverage.")
-    public int MINIMUM_MAPPING_QUALITY = 0;
 
-    @Argument(shortName="Q", doc="Minimum base quality for a base to contribute coverage.")
-    public int MINIMUM_BASE_QUALITY = 3;
+    public CollectRawWgsMetrics() {
+        //Override default values inherited from CollectWgsMetrics
+        MINIMUM_MAPPING_QUALITY = 0;
 
-    @Argument(shortName="CAP", doc="Treat bases with coverage exceeding this value as if they had coverage at this value.")
-    public int COVERAGE_CAP = 100000;
+        //TODO: NOTE: MINIMUM_BASE_QUALITY and COVERAGE_CAP have different doc now; if the exact
+        // language needs to be preservedm we can make this an argument collection
+        //TODO: Previous doc: "Minimum base quality for a base to contribute coverage."
+        //TODO: Current doc (inherited from CollectWgsMetrics):
+        //TODO:               "Minimum base quality for a base to contribute coverage. N bases will be treated as having a base quality " + 
+        //                   "of negative infinity and will therefore be excluded from coverage regardless of the value of this parameter."
+        MINIMUM_BASE_QUALITY = 3;
 
-    @Argument(doc="At positions with coverage exceeding this value, completely ignore reads that accumulate beyond this value (so that they will not be considered for PCT_EXC_CAPPED).  Used to keep memory consumption in check, but could create bias if set too low")
-    public int LOCUS_ACCUMULATION_CAP = 200000;
+        //TODO: Previous doc:
+        //TODO: "Treat bases with coverage exceeding this value as if they had coverage at this value."
+        //TODO: Current doc (inherited from CollectWgsMetrics):
+        //TODO: "Treat positions with coverage exceeding this value as if they had coverage at this value (but calculate the difference for PCT_EXC_CAPPED)."
+        COVERAGE_CAP = 100000;
+
+        LOCUS_ACCUMULATION_CAP = 200000;
+    }
 
     // rename the class so that in the metric file it is annotated differently.
     public static class RawWgsMetrics extends WgsMetrics {

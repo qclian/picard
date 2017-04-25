@@ -41,6 +41,7 @@ import org.broadinstitute.barclay.argparser.Argument;
 import picard.PicardException;
 import picard.cmdline.CommandLineProgram;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
+import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
 import picard.cmdline.programgroups.Fasta;
 import picard.cmdline.StandardOptionDefinitions;
 
@@ -81,9 +82,6 @@ public class CreateSequenceDictionary extends CommandLineProgram {
     // The following attributes define the command-line arguments
 
     private static final Log logger = Log.getInstance(CreateSequenceDictionary.class);
-
-    @Argument(doc = "Input reference fasta or fasta.gz", shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME)
-    public File REFERENCE;
 
     @Argument(doc = "Output SAM file containing only the sequence dictionary. By default it will use the base name of the input reference with the .dict extension",
             shortName = StandardOptionDefinitions.OUTPUT_SHORT_NAME, optional = true)
@@ -147,13 +145,27 @@ public class CreateSequenceDictionary extends CommandLineProgram {
      */
     protected String[] customCommandLineValidation() {
         if (URI == null) {
-            URI = "file:" + REFERENCE.getAbsolutePath();
+            URI = "file:" + referenceSequence.getReferenceFile().getAbsolutePath();
         }
         if (OUTPUT == null) {
-            OUTPUT = ReferenceSequenceFileFactory.getDefaultDictionaryForReferenceSequence(REFERENCE);
+            OUTPUT = ReferenceSequenceFileFactory.getDefaultDictionaryForReferenceSequence(referenceSequence.getReferenceFile());
             logger.info("Output dictionary will be written in ", OUTPUT);
         }
-        return null;
+        return super.customCommandLineValidation();
+    }
+
+    // return a custom argument collection because this tool uses the argument name
+    // "REFERENCE" instead of "REFERENCE_SEQUENCE"
+    @Override
+    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+        return new CreateSeqDictReferenceArgumentCollection();
+    }
+
+    public static class CreateSeqDictReferenceArgumentCollection implements ReferenceArgumentCollection {
+        @Argument(doc = "Input reference fasta or fasta.gz", shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME)
+        public File REFERENCE;
+
+        public File getReferenceFile() { return REFERENCE; };
     }
 
     /**
@@ -172,7 +184,7 @@ public class CreateSequenceDictionary extends CommandLineProgram {
         final SortingCollection<String> sequenceNames = makeSortingCollection();
         try (BufferedWriter writer = makeWriter()) {
             final ReferenceSequenceFile refSeqFile = ReferenceSequenceFileFactory.
-                    getReferenceSequenceFile(REFERENCE, TRUNCATE_NAMES_AT_WHITESPACE);
+                    getReferenceSequenceFile(REFERENCE_SEQUENCE, TRUNCATE_NAMES_AT_WHITESPACE);
             SAMSequenceDictionaryCodec samDictCodec = new SAMSequenceDictionaryCodec(writer);
 
             samDictCodec.encodeHeaderLine(false);

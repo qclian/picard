@@ -36,6 +36,7 @@ import htsjdk.samtools.util.Log;
 import org.broadinstitute.barclay.argparser.Argument;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
 import picard.cmdline.StandardOptionDefinitions;
+import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
 import picard.cmdline.programgroups.Metrics;
 
 import java.io.File;
@@ -116,10 +117,6 @@ public class CollectAlignmentSummaryMetrics extends SinglePassSamProgram {
     @Argument(shortName="BS", doc="Whether the SAM or BAM file consists of bisulfite sequenced reads.")
     public boolean IS_BISULFITE_SEQUENCED = false;
 
-    //overridden to make it visible on the commandline and to change the doc.
-    @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME, doc = "Reference sequence file. Note that while this argument isn't required, without it only a small subset of the metrics will be calculated. Note also that if a reference sequence is provided, it must be accompanied by a sequence dictionary.",  optional = true, overridable = true)
-    public File REFERENCE_SEQUENCE = Defaults.REFERENCE_FASTA;
-
     private AlignmentSummaryMetricsCollector collector;
 
     /** Required main method implementation. */
@@ -155,4 +152,20 @@ public class CollectAlignmentSummaryMetrics extends SinglePassSamProgram {
 
         file.write(OUTPUT);
     }
+
+    //overridden to make it visible on the commandline and to change the doc.
+    @Override
+    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+        return new CollectAlignmentRefArgCollection();
+    }
+
+    public static class CollectAlignmentRefArgCollection implements ReferenceArgumentCollection {
+        @Argument(shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME,
+                doc = "Reference sequence file. Note that while this argument isn't required, without it only a small subset of the metrics will be calculated. Note also that if a reference sequence is provided, it must be accompanied by a sequence dictionary.",
+                optional = true)
+        public File REFERENCE_SEQUENCE = Defaults.REFERENCE_FASTA;
+
+        public File getReferenceFile() { return REFERENCE_SEQUENCE; };
+    }
+
 }
