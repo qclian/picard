@@ -126,7 +126,7 @@ static final String USAGE_DETAILS = "<p>This tool examines two sources of sequen
     public int CONTEXT_SIZE = 1;
 
     @Argument(doc = "If specified, only print results for these contexts in the detail metrics output. " +
-                  "However, the summary metrics output will still take all contexts into consideration.")
+                  "However, the summary metrics output will still take all contexts into consideration.", optional = true)
     public Set<String> CONTEXTS_TO_PRINT = new HashSet<String>();
 
     @Argument(shortName = "EXT", doc="Append the given file extension to all metric file names (ex. OUTPUT.pre_adapter_summary_metrics.EXT). None if null", optional=true)

@@ -135,7 +135,7 @@ public class CollectOxoGMetrics extends CommandLineProgram {
     @Argument(doc = "The number of context bases to include on each side of the assayed G/C base.")
     public int CONTEXT_SIZE = 1;
 
-    @Argument(doc = "The optional set of sequence contexts to restrict analysis to. If not supplied all contexts are analyzed.")
+    @Argument(doc = "The optional set of sequence contexts to restrict analysis to. If not supplied all contexts are analyzed.", optional = true)
     public Set<String> CONTEXTS = new HashSet<String>();
 
     @Argument(doc = "For debugging purposes: stop after visiting this many sites with at least 1X coverage.")

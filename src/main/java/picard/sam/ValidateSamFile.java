@@ -97,7 +97,7 @@ public class ValidateSamFile extends CommandLineProgram {
             doc = "Mode of output")
     public Mode MODE = Mode.VERBOSE;
 
-    @Argument(doc = "List of validation error types to ignore.")
+    @Argument(doc = "List of validation error types to ignore.", optional = true)
     public List<SAMValidationError.Type> IGNORE = new ArrayList<SAMValidationError.Type>();
 
     @Argument(shortName = "MO",

@@ -84,7 +84,7 @@ public class CollectInsertSizeMetrics extends SinglePassSamProgram {
     protected static final String Histogram_R_SCRIPT = "picard/analysis/insertSizeHistogram.R";
 
     @Argument(shortName="H", doc="File to write insert size Histogram chart to.")
-    public File Histogram_FILE;
+    public File HISTOGRAM_FILE;
 
     @Argument(doc="Generate mean, sd and plots by trimming the data down to MEDIAN + DEVIATIONS*MEDIAN_ABSOLUTE_DEVIATION. " +
             "This is done because insert size data typically includes enough anomalous values from chimeras and other " +
@@ -134,7 +134,7 @@ public class CollectInsertSizeMetrics extends SinglePassSamProgram {
 
     @Override protected void setup(final SAMFileHeader header, final File samFile) {
         IOUtil.assertFileIsWritable(OUTPUT);
-        IOUtil.assertFileIsWritable(Histogram_FILE);
+        IOUtil.assertFileIsWritable(HISTOGRAM_FILE);
 
         //Delegate actual collection to InsertSizeMetricCollector
         multiCollector = new InsertSizeMetricsCollector(METRIC_ACCUMULATION_LEVEL, header.getReadGroups(),
@@ -166,13 +166,13 @@ public class CollectInsertSizeMetrics extends SinglePassSamProgram {
                 rResult = RExecutor.executeFromClasspath(
                     Histogram_R_SCRIPT,
                     OUTPUT.getAbsolutePath(),
-                    Histogram_FILE.getAbsolutePath(),
+                    HISTOGRAM_FILE.getAbsolutePath(),
                     INPUT.getName());
             } else {
                 rResult = RExecutor.executeFromClasspath(
                     Histogram_R_SCRIPT,
                     OUTPUT.getAbsolutePath(),
-                    Histogram_FILE.getAbsolutePath(),
+                    HISTOGRAM_FILE.getAbsolutePath(),
                     INPUT.getName(),
                     String.valueOf(HISTOGRAM_WIDTH) ); //Histogram_WIDTH is passed because R automatically sets Histogram width to the last
                                                          //bin that has data, which may be less than Histogram_WIDTH and confuse the user.

@@ -143,17 +143,17 @@ public class MergeBamAlignment extends CommandLineProgram {
     public int MAX_INSERTIONS_OR_DELETIONS = 1;
 
     @Argument(doc = "Reserved alignment attributes (tags starting with X, Y, or Z) that should be " +
-            "brought over from the alignment data when merging.")
+            "brought over from the alignment data when merging.", optional = true)
     public List<String> ATTRIBUTES_TO_RETAIN = new ArrayList<>();
 
     @Argument(doc = "Attributes from the alignment record that should be removed when merging." +
-            "  This overrides ATTRIBUTES_TO_RETAIN if they share common tags.")
+            "  This overrides ATTRIBUTES_TO_RETAIN if they share common tags.", optional = true)
     public List<String> ATTRIBUTES_TO_REMOVE = new ArrayList<>();
 
-    @Argument(shortName="RV", doc="Attributes on negative strand reads that need to be reversed.")
+    @Argument(shortName="RV", doc="Attributes on negative strand reads that need to be reversed.", optional = true)
     public Set<String> ATTRIBUTES_TO_REVERSE = new TreeSet<>(SAMRecord.TAGS_TO_REVERSE);
 
-    @Argument(shortName="RC", doc="Attributes on negative strand reads that need to be reverse complemented.")
+    @Argument(shortName="RC", doc="Attributes on negative strand reads that need to be reverse complemented.", optional = true)
     public Set<String> ATTRIBUTES_TO_REVERSE_COMPLEMENT = new TreeSet<>(SAMRecord.TAGS_TO_REVERSE_COMPLEMENT);
 
     @Argument(shortName = "R1_TRIM",

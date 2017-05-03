@@ -134,7 +134,7 @@ public class GenotypeConcordance extends CommandLineProgram {
     @Argument(shortName = "CS", doc="The name of the call sample within the call VCF. Not required if only one sample exists.", optional = true)
     public String CALL_SAMPLE = null;
 
-    @Argument(doc="One or more interval list files that will be used to limit the genotype concordance.  Note - if intervals are specified, the VCF files must be indexed.")
+    @Argument(doc="One or more interval list files that will be used to limit the genotype concordance.  Note - if intervals are specified, the VCF files must be indexed.", optional = true)
     public List<File> INTERVALS;
 
     @Argument(doc="If true, multiple interval lists will be intersected. If false multiple lists will be unioned.")

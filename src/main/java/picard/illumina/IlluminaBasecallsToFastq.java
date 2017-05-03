@@ -151,7 +151,7 @@ public class IlluminaBasecallsToFastq extends CommandLineProgram {
     public File MULTIPLEX_PARAMS;
 
     @Deprecated
-    @Argument(doc = "Deprecated (No longer used). Which adapters to look for in the read.")
+    @Argument(doc = "Deprecated (No longer used). Which adapters to look for in the read.", optional = true)
     public List<IlluminaUtil.IlluminaAdapterPair> ADAPTERS_TO_CHECK = null;
 
     @Argument(doc = "The number of threads to run in parallel. If NUM_PROCESSORS = 0, number of cores is automatically set to " +

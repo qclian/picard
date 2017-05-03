@@ -40,18 +40,27 @@ import htsjdk.variant.variantcontext.writer.Options;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
 import org.broadinstitute.barclay.argparser.Argument;
 import org.broadinstitute.barclay.argparser.ArgumentCollection;
+import org.broadinstitute.barclay.argparser.CommandLineArgumentParser;
+import org.broadinstitute.barclay.argparser.CommandLineException;
 import org.broadinstitute.barclay.argparser.CommandLineParser;
+import org.broadinstitute.barclay.argparser.CommandLineParserOptions;
 import org.broadinstitute.barclay.argparser.LegacyCommandLineArgumentParser;
+import org.broadinstitute.barclay.argparser.SpecialArgumentsCollection;
 import picard.cmdline.argumentcollections.OptionalReferenceArgumentCollection;
 import picard.cmdline.argumentcollections.ReferenceArgumentCollection;
 import picard.cmdline.argumentcollections.RequiredReferenceArgumentCollection;
+import picard.util.PropertyUtils;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Abstract class to facilitate writing command-line programs.
@@ -71,12 +80,16 @@ import java.util.List;
  * 4. Implement the following static method in the concrete class:
  *
  *     public static void main(String[] argv) {
-        new MyConcreteClass().instanceMain(argv);
-    }
-
-
+ *       new MyConcreteClass().instanceMain(argv);
+ *   }
  */
 public abstract class CommandLineProgram {
+    // Picard CmdLine properties file resource path, placed at this path by the gradle build script
+    private static String PICARD_CMDLINE_PROPERTIES_FILE = "picard/picardCmdLine.properties";
+    private static String PROPERTY_USE_LEGACY_PARSER = "picard.useLegacyParser";
+    private static String PROPERTY_CONVERT_LEGACY_COMMAND_LINE = "picard.convertCommandLine";
+    private static Boolean useLegacyParser;
+
     @Argument(common=true, optional=true)
     public List<File> TMP_DIR = new ArrayList<File>();
 
@@ -110,6 +123,12 @@ public abstract class CommandLineProgram {
 
     @Argument(doc="Google Genomics API client_secrets.json file path.", common = true)
     public String GA4GH_CLIENT_SECRETS="client_secrets.json";
+
+    @ArgumentCollection(doc="Special Arguments that have meaning to the argument parsing system.  " +
+            "It is unlikely these will ever need to be accessed by the command line program")
+    public Object specialArgumentsCollection = useLegacyParser(getClass()) ?
+            new Object() : // legacy parser does not require these
+            new SpecialArgumentsCollection();
 
     private static final String[] PACKAGES_WITH_WEB_DOCUMENTATION = {"picard"};
 
@@ -161,7 +180,12 @@ public abstract class CommandLineProgram {
     }
 
     public int instanceMain(final String[] argv) {
-        if (!parseArgs(argv)) {
+        String actualArgs[] = argv;
+
+        if (System.getProperty(PROPERTY_CONVERT_LEGACY_COMMAND_LINE, "false").equals("true")) {
+            actualArgs = CommandLineSyntaxTranslater.translatePicardStyleToPosixStyle(argv);
+        }
+        if (!parseArgs(actualArgs)) {
             return 1;
         }
 
@@ -256,14 +280,23 @@ public abstract class CommandLineProgram {
     protected boolean parseArgs(final String[] argv) {
 
         commandLineParser = getCommandLineParser();
-        final boolean ret = commandLineParser.parseArguments(System.err, argv);
 
-        REFERENCE_SEQUENCE = referenceSequence.getReferenceFile();
+        boolean ret = false;
+        try {
+            ret = commandLineParser.parseArguments(System.err, argv);
+        } catch (CommandLineException e) {
+            // Barclay command line parser throws on parsing/argument errors
+            System.err.println(e.getMessage());
+            System.err.println(commandLineParser.usage(false,false));
+            ret = false;
+        }
 
         commandLine = commandLineParser.getCommandLine();
         if (!ret) {
             return false;
         }
+        REFERENCE_SEQUENCE = referenceSequence.getReferenceFile();
+
         final String[] customErrorMessages = customCommandLineValidation();
         if (customErrorMessages != null) {
             for (final String msg : customErrorMessages) {
@@ -289,11 +322,44 @@ public abstract class CommandLineProgram {
         return getCommandLineParser().getStandardUsagePreamble(getClass());
     }
 
+    /**
+     * @return Return the command line parser to be used.
+     */
     public CommandLineParser getCommandLineParser() {
         if (commandLineParser == null) {
-            commandLineParser = new LegacyCommandLineArgumentParser(this);
+            commandLineParser = useLegacyParser(getClass()) ?
+                        new LegacyCommandLineArgumentParser(this) :
+                        new CommandLineArgumentParser(this,
+                            Collections.EMPTY_LIST,
+                            new HashSet<>(Arrays.asList(CommandLineParserOptions.APPEND_TO_COLLECTIONS)));
         }
         return commandLineParser;
+    }
+
+    /**
+     * Return true if the Picard command line parser should be used in place of the Barclay command line parser,
+     * otherwise, false.
+     *
+     * The Barclay parser is enabled by opt-in only, via the presence of a (true-valued) boolean property
+     * "picard.useLegacyParser", either as a System property, or property in a file called "picard.properties".
+     * System property value takes precedence.
+     *
+     * @return true if the legacy parser should be used
+     */
+    public static boolean useLegacyParser(final Class<?> clazz) {
+        String legacyPropertyValue = null;
+        if (useLegacyParser == null) {
+            legacyPropertyValue = System.getProperty(PROPERTY_USE_LEGACY_PARSER);
+            if (null == legacyPropertyValue){
+                Properties props = PropertyUtils.loadPropertiesFile(PICARD_CMDLINE_PROPERTIES_FILE, clazz);
+                if (props != null) {
+                    legacyPropertyValue = props.getProperty(PROPERTY_USE_LEGACY_PARSER);
+                }
+            }
+            // remember the value so we only have to load the properties file once
+            useLegacyParser = legacyPropertyValue == null || Boolean.parseBoolean(legacyPropertyValue);
+        }
+        return useLegacyParser;
     }
 
     /**

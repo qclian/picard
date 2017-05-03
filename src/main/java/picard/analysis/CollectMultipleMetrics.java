@@ -138,7 +138,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
             public SinglePassSamProgram makeInstance(final String outbase, final String outext, final File input, final File reference, final Set<MetricAccumulationLevel> metricAccumulationLevel, final File dbSnp, final File intervals) {
                 final CollectInsertSizeMetrics program = new CollectInsertSizeMetrics();
                 program.OUTPUT = new File(outbase + ".insert_size_metrics" + outext);
-                program.Histogram_FILE = new File(outbase + ".insert_size_histogram.pdf");
+                program.HISTOGRAM_FILE = new File(outbase + ".insert_size_histogram.pdf");
                 // Generally programs should not be accessing these directly but it might make things smoother
                 // to just set them anyway. These are set here to make sure that in case of a the derived class
                 // overrides
