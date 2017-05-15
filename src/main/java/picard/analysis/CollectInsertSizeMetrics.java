@@ -33,6 +33,7 @@ import htsjdk.samtools.util.IOUtil;
 import htsjdk.samtools.util.Log;
 import org.broadinstitute.barclay.argparser.Argument;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
+import org.broadinstitute.barclay.help.DocumentedFeature;
 import picard.PicardException;
 import picard.analysis.directed.InsertSizeMetricsCollector;
 import picard.cmdline.programgroups.Metrics;
@@ -52,6 +53,7 @@ import java.util.Set;
         oneLineSummary = CollectInsertSizeMetrics.USAGE_BRIEF,
         programGroup = Metrics.class
 )
+@DocumentedFeature
 public class CollectInsertSizeMetrics extends SinglePassSamProgram {
     static final String USAGE_BRIEF = "Collect metrics about the insert size distribution of a paired-end library.";
     static final String USAGE_SUMMARY = "<p>This tool provides useful metrics for validating library construction including " +

@@ -125,7 +125,7 @@ public abstract class CommandLineProgram {
     public String GA4GH_CLIENT_SECRETS="client_secrets.json";
 
     @ArgumentCollection(doc="Special Arguments that have meaning to the argument parsing system.  " +
-            "It is unlikely these will ever need to be accessed by the command line program")
+                "It is unlikely these will ever need to be accessed by the command line program")
     public Object specialArgumentsCollection = useLegacyParser(getClass()) ?
             new Object() : // legacy parser does not require these
             new SpecialArgumentsCollection();

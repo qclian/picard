@@ -38,6 +38,7 @@ import htsjdk.samtools.util.RuntimeIOException;
 import htsjdk.samtools.util.SortingCollection;
 import htsjdk.samtools.util.StringUtil;
 import org.broadinstitute.barclay.argparser.Argument;
+import org.broadinstitute.barclay.help.DocumentedFeature;
 import picard.PicardException;
 import picard.cmdline.CommandLineProgram;
 import org.broadinstitute.barclay.argparser.CommandLineProgramProperties;
@@ -58,6 +59,7 @@ import java.util.Set;
  * Create a SAM/BAM file from a fasta containing reference sequence. The output SAM file contains a header but no
  * SAMRecords, and the header contains only sequence records.
  */
+@DocumentedFeature
 @CommandLineProgramProperties(
         summary = CreateSequenceDictionary.USAGE_SUMMARY + CreateSequenceDictionary.USAGE_DETAILS,
         oneLineSummary = CreateSequenceDictionary.USAGE_SUMMARY,
@@ -161,6 +163,7 @@ public class CreateSequenceDictionary extends CommandLineProgram {
         return new CreateSeqDictReferenceArgumentCollection();
     }
 
+    @DocumentedFeature
     public static class CreateSeqDictReferenceArgumentCollection implements ReferenceArgumentCollection {
         @Argument(doc = "Input reference fasta or fasta.gz", shortName = StandardOptionDefinitions.REFERENCE_SHORT_NAME)
         public File REFERENCE;

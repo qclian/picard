@@ -49,12 +49,20 @@ jacoco {
 
 final htsjdkVersion = System.getProperty('htsjdk.version', '2.9.0')
 
+// Get the jdk files we need to run javaDoc. We need to use these during compile, testCompile,
+// test execution, and gatkDoc generation, but we don't want them as part of the runtime
+// classpath and we don't want to redistribute them in the uber jar.
+final javadocJDKFiles = files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs())
+
 dependencies {
     compile 'com.google.guava:guava:15.0'
     compile 'com.github.samtools:htsjdk:' + htsjdkVersion
     compile 'org.broadinstitute:barclay:1.0.0-26-ga9a3f67-SNAPSHOT'
-    //tools dependency for doclet requires sdk devel
-    compile(files(((URLClassLoader) ToolProvider.getSystemToolClassLoader()).getURLs()))
+
+    // javadoc utilities; compile/test only to prevent redistribution of sdk jars
+    compileOnly(javadocJDKFiles)
+    testCompile(javadocJDKFiles)
+
     testCompile 'org.testng:testng:6.9.10'
 }
 
@@ -81,9 +89,44 @@ jar {
     }
 }
 
-// This is a hack to disable the java 8 default javadoc lint until we fix the html formatting
 tasks.withType(Javadoc) {
+    // do this for all javadoc tasks, including gatkDoc
+    options.addStringOption('Xdoclint:none')
+}
+
+javadoc {
+    // This is a hack to disable the java 8 default javadoc lint until we fix the html formatting
+    // We only want to do this for the javadoc task, not gatkDoc
     options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+// Generate Picard Online Doc
+task picardDoc(type: Javadoc, dependsOn: ['cleanPicardDoc', classes]) {
+    final File picardDocDir = new File("build/docs/picarddoc")
+    doFirst {
+        // make sure the output folder exists or we can create it
+        if (!picardDocDir.exists() && !picardDocDir.mkdirs()) {
+            throw new GradleException(String.format("Failure creating folder (%s) for picardDocDir doc output in task (%s)",
+                    picardDocDir.getAbsolutePath(),
+                    it.name));
+        }
+    }
+    source = sourceSets.main.allJava
+
+    // The gatkDoc process instantiates any documented feature classes, so to run it we need the entire
+    // runtime classpath, as well as jdk javadoc files such as tools.jar, where com.sun.javadoc lives.
+    classpath = sourceSets.main.runtimeClasspath + javadocJDKFiles
+    options.docletpath = classpath.asType(List)
+    options.doclet = "picard.util.help.PicardHelpDoclet"
+
+    outputs.dir(picardDocDir)
+    options.destinationDirectory(picardDocDir)
+
+    options.addStringOption("settings-dir", "src/main/resources/picard/helpTemplates/");
+    options.addStringOption("output-file-extension", "html")
+    options.addStringOption("absolute-version", getVersion())
+    options.addStringOption("build-timestamp", new Date().format("dd-mm-yyyy hh:mm:ss"))
+    options.addStringOption("verbose")
 }
 
 task currentJar(type: Copy){
@@ -187,7 +230,6 @@ tasks.withType(Test) {
         }
     }
 }
-
 
 task wrapper(type: Wrapper) {
     description = "Regenerate the gradle wrapper"
