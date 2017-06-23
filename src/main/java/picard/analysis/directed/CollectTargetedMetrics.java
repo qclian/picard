@@ -83,11 +83,6 @@ public abstract class CollectTargetedMetrics<METRIC extends MultilevelMetrics, C
             "considered 'near probe' and included in percent selected.")
     public int NEAR_DISTANCE = TargetedPcrMetricsCollector.NEAR_PROBE_DISTANCE_DEFAULT;
 
-    //TODO: MINIMUM_MAPPING_QUALITY and MINIMUM_BASE_QUALITY are both annotated as required,
-    // but since both are primitive types (and thus always have a value), the CLP ALWAYS treats
-    // them as optional since they appear to have been provided. If that's intentional, they
-    // should be annotated as optional=true. If they're required, we should make them uninitialized
-    // reference types.
     @Argument(shortName = MINIMUM_MAPPING_QUALITY_SHORT_NAME, doc = "Minimum mapping quality for a read to contribute coverage.")
     public int MINIMUM_MAPPING_QUALITY = 1;
 

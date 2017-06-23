@@ -69,6 +69,11 @@ public abstract class SinglePassSamProgram extends CommandLineProgram {
     private static final Log log = Log.getInstance(SinglePassSamProgram.class);
 
     /**
+     * Set the reference File.
+     */
+    public void setReferenceSequence(final File referenceFile) { REFERENCE_SEQUENCE = referenceFile; };
+
+    /**
      * Final implementation of doWork() that checks and loads the input and optionally reference
      * sequence files and the runs the sublcass through the setup() acceptRead() and finish() steps.
      */
@@ -158,7 +163,7 @@ public abstract class SinglePassSamProgram extends CommandLineProgram {
         }
     }
 
-    /** Can be overriden and set to false if the section of unmapped reads at the end of the file isn't needed. */
+    /** Can be overridden and set to false if the section of unmapped reads at the end of the file isn't needed. */
     protected boolean usesNoRefReads() { return true; }
 
     /** Should be implemented by subclasses to do one-time initialization work. */

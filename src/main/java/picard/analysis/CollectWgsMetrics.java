@@ -118,7 +118,7 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
     public int SAMPLE_SIZE=10000;
 
     @ArgumentCollection
-    protected IntervalArgumentCollection intervalArugmentCollection = getIntervalArgumentCollection();
+    protected IntervalArgumentCollection intervalArugmentCollection = makeIntervalArgumentCollection();
 
     @Argument(doc = "If true, fast algorithm is used.")
     public boolean USE_FAST_ALGORITHM = false;
@@ -126,7 +126,7 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
     @Argument(doc = "Average read length in the file. Default is 150.", optional = true)
     public int READ_LENGTH = 150;
 
-    public File INTERVALS = null;
+    protected File INTERVALS = null;
 
     private SAMFileHeader header = null;
 
@@ -140,11 +140,11 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
      * @return An interval argument collection to be used for this tool. Subclasses can override this
      * to provide an argument collection with alternative arguments or argument annotations.
      */
-    protected IntervalArgumentCollection getIntervalArgumentCollection() {
-        return new CollectWGSMetricsIntervalArgumentCollection();
+    protected IntervalArgumentCollection makeIntervalArgumentCollection() {
+        return new CollectWgsMetricsIntervalArgumentCollection();
     }
 
-    public static class CollectWGSMetricsIntervalArgumentCollection implements IntervalArgumentCollection {
+    public static class CollectWgsMetricsIntervalArgumentCollection implements IntervalArgumentCollection {
         @Argument(doc = "An interval list file that contains the positions to restrict the assessment. Please note that " +
                 "all bases of reads that overlap these intervals will be considered, even if some of those bases extend beyond the boundaries of " +
                 "the interval. The ideal use case for this argument is to use it to restrict the calculation to a subset of (whole) contigs.",

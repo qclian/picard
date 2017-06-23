@@ -126,7 +126,7 @@ private static final String R_SCRIPT = "picard/analysis/rrbsQc.R";
     // return a custom argument collection since this tool uses a (required) argument name
     // of "REFERENCE", not "REFERENCE_SEQUENCE"
     @Override
-    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+    protected ReferenceArgumentCollection makeReferenceArgumentCollection() {
         return new CollectRrbsMetricsReferenceArgumentCollection();
     }
 

@@ -36,7 +36,6 @@ public class PicardCommandLineTest {
             classFinder.find(pkg, CommandLineProgram.class);
         }
 
-        final Map<String, Class<?>> simpleNameToClass = new HashMap<String, Class<?>>();
         for (final Class clazz : classFinder.getClasses()) {
             // No interfaces, synthetic, primitive, local, or abstract classes.
             if (!clazz.isInterface() && !clazz.isSynthetic() && !clazz.isPrimitive() && !clazz.isLocalClass()

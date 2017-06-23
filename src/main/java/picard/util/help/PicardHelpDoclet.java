@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class PicardHelpDoclet extends HelpDoclet {
 
-    private final static String PICArD_FREEMARKER_INDEX_TEMPLATE_NAME = "generic.index.template.html";
+    private final static String PICARD_FREEMARKER_INDEX_TEMPLATE_NAME = "generic.index.template.html";
 
     /**
      * Create a doclet of the appropriate type and generate the FreeMarker templates properties.
@@ -39,8 +39,8 @@ public class PicardHelpDoclet extends HelpDoclet {
      * @return name of freemarker index template
      */
     @Override
-    protected String getIndexTemplateName() {
-        return PICArD_FREEMARKER_INDEX_TEMPLATE_NAME;
+    public String getIndexTemplateName() {
+        return PICARD_FREEMARKER_INDEX_TEMPLATE_NAME;
     }
 
     /**
@@ -48,7 +48,6 @@ public class PicardHelpDoclet extends HelpDoclet {
      * for the target feature(s) represented by documentedFeature.
      *
      * @param documentedFeature DocumentedFeature annotation for the target feature
-     * @param commmandLineProgramProperties
      * @param classDoc javadoc classDoc for the target feature
      * @param clazz class of the target feature
      * @return DocWorkUnit to be used for this feature
@@ -56,14 +55,12 @@ public class PicardHelpDoclet extends HelpDoclet {
     @Override
     protected DocWorkUnit createWorkUnit(
             final DocumentedFeature documentedFeature,
-            final CommandLineProgramProperties commmandLineProgramProperties,
             final ClassDoc classDoc,
             final Class<?> clazz)
     {
         return new DocWorkUnit(
                 new PicardHelpDocWorkUnitHandler(this),
                 documentedFeature,
-                commmandLineProgramProperties,
                 classDoc,
                 clazz);
     }

@@ -6,7 +6,7 @@ import java.util.Set;
 
 public final class HelpConstants {
 
-    private HelpConstants() {};
+    private HelpConstants() {}
 
     /**
      * Definition of the group names / descriptions for documentation/help purposes.
@@ -30,13 +30,13 @@ public final class HelpConstants {
      * List of "supercategory" values used for doc purposes. Every doc group name can/should be put into
      * one of the following supercategories.
      */
-    private final static String DOC_SUPERCAT_TOOLS = "tools";
-    private final static String DOC_SUPERCAT_UTILITIES = "utilities";
-    private final static String DOC_SUPERCAT_EXCLUDE = "exclude";
+    public final static String DOC_SUPERCAT_TOOLS = "tools";
+    public final static String DOC_SUPERCAT_UTILITIES = "utilities";
+    public final static String DOC_SUPERCAT_EXCLUDE = "exclude";
 
     private static Map<String, String> groupToSuperCategory;
 
-    private static Map<String, String> getSuperCategoryMap() {
+    public static Map<String, String> getSuperCategoryMap() {
         if (groupToSuperCategory == null) {
 
             // do this only on demand since we only need it during docgen

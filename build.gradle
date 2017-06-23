@@ -57,7 +57,7 @@ final javadocJDKFiles = files(((URLClassLoader) ToolProvider.getSystemToolClassL
 dependencies {
     compile 'com.google.guava:guava:15.0'
     compile 'com.github.samtools:htsjdk:' + htsjdkVersion
-    compile 'org.broadinstitute:barclay:1.0.0-26-ga9a3f67-SNAPSHOT'
+    compile 'org.broadinstitute:barclay:1.1.0'
 
     // javadoc utilities; compile/test only to prevent redistribution of sdk jars
     compileOnly(javadocJDKFiles)

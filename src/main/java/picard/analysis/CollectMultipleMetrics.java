@@ -120,7 +120,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // overrides
                 program.METRIC_ACCUMULATION_LEVEL = metricAccumulationLevel;
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
 
                 return program;
             }
@@ -144,7 +144,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // overrides
                 program.METRIC_ACCUMULATION_LEVEL = metricAccumulationLevel;
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
 
                 return program;
             }
@@ -167,7 +167,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // to just set them anyway. These are set here to make sure that in case of a the derived class
                 // overrides
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
 
                 return program;
             }
@@ -190,7 +190,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // to just set them anyway. These are set here to make sure that in case of a the derived class
                 // overrides
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
 
                 return program;
             }
@@ -213,7 +213,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // to just set them anyway. These are set here to make sure that in case of a the derived class
                 // overrides
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
 
                 return program;
             }
@@ -244,7 +244,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 program.ALSO_IGNORE_DUPLICATES = false;
 
                 //GC_Bias actually uses the class-level REFERENCE_SEQUENCE variable.
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
 
                 return program;
             }
@@ -268,7 +268,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // overrides
                 program.METRIC_ACCUMULATION_LEVEL = metricAccumulationLevel;
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
                 
                 return program;
             }
@@ -296,7 +296,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // to just set them anyway. These are set here to make sure that in case of a the derived class
                 // overrides
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
                 return program;
             }
         },
@@ -317,7 +317,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
                 // to just set them anyway. These are set here to make sure that in case of a the derived class
                 // overrides
                 program.INPUT = input;
-                program.REFERENCE_SEQUENCE = reference;
+                program.setReferenceSequence(reference);
                 return program;
             }
         }
@@ -415,7 +415,7 @@ public class CollectMultipleMetrics extends CommandLineProgram {
             // Generally programs should not be accessing these directly but it might make things smoother
             // to just set them anyway
             instance.INPUT = INPUT;
-            instance.REFERENCE_SEQUENCE = REFERENCE_SEQUENCE;
+            instance.setReferenceSequence(REFERENCE_SEQUENCE);
 
             instance.setDefaultHeaders(getDefaultHeaders());
 

@@ -91,7 +91,7 @@ public class ReorderSam extends CommandLineProgram {
     // return a custom argument collection because this tool uses the (required) argument name
     // "REFERENCE" instead of "REFERENCE_SEQUENCE"
     @Override
-    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+    protected ReferenceArgumentCollection makeReferenceArgumentCollection() {
         return new ReorderSamReferenceArgumentCollection();
     }
 

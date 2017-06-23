@@ -155,7 +155,7 @@ public class CollectAlignmentSummaryMetrics extends SinglePassSamProgram {
 
     //overridden to make it visible on the commandline and to change the doc.
     @Override
-    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+    protected ReferenceArgumentCollection makeReferenceArgumentCollection() {
         return new CollectAlignmentRefArgCollection();
     }
 

@@ -67,8 +67,8 @@ import java.util.Properties;
  *
  * To use:
  *
- * 1. Extend this class with a concrete class that has data members annotated with @Option, @PositionalArguments
- * and/or @Usage annotations.
+ * 1. Extend this class with a concrete class that is annotated with @COmmandLineProgramProperties, and has data members
+ * annotated with @Argument, @PositionalArguments, and/or @ArgumentCollection annotations.
  *
  * 2. If there is any custom command-line validation, override customCommandLineValidation().  When this method is
  * called, the command line has been parsed and set into the data members of the concrete class.
@@ -77,11 +77,6 @@ import java.util.Properties;
  * the exit status of the program.  It is assumed that the concrete class emits any appropriate error message before
  * returning non-zero.  doWork() may throw unchecked exceptions, which are caught and reported appropriately.
  *
- * 4. Implement the following static method in the concrete class:
- *
- *     public static void main(String[] argv) {
- *       new MyConcreteClass().instanceMain(argv);
- *   }
  */
 public abstract class CommandLineProgram {
     // Picard CmdLine properties file resource path, placed at this path by the gradle build script
@@ -90,7 +85,8 @@ public abstract class CommandLineProgram {
     private static String PROPERTY_CONVERT_LEGACY_COMMAND_LINE = "picard.convertCommandLine";
     private static Boolean useLegacyParser;
 
-    @Argument(common=true, optional=true)
+    @Argument(doc="One or more directories with space available to be used by this program for temporary storage of working files",
+            common=true, optional=true)
     public List<File> TMP_DIR = new ArrayList<File>();
 
     @Argument(doc = "Control verbosity of logging.", common=true)
@@ -104,7 +100,7 @@ public abstract class CommandLineProgram {
             "do not otherwise need to be decoded.", common=true)
     public ValidationStringency VALIDATION_STRINGENCY = ValidationStringency.DEFAULT_STRINGENCY;
 
-    @Argument(doc = "Compression level for all compressed files created (e.g. BAM and GELI).", common=true)
+    @Argument(doc = "Compression level for all compressed files created (e.g. BAM and .gz).", common=true)
     public int COMPRESSION_LEVEL = BlockCompressedStreamConstants.DEFAULT_COMPRESSION_LEVEL;
 
     @Argument(doc = "When writing SAM files that need to be sorted, this will specify the number of records stored in RAM before spilling to disk. Increasing this number reduces the number of file handles needed to sort a SAM file, and increases the amount of RAM needed.", optional=true, common=true)
@@ -117,9 +113,11 @@ public abstract class CommandLineProgram {
     public boolean CREATE_MD5_FILE = Defaults.CREATE_MD5;
 
     @ArgumentCollection
-    public ReferenceArgumentCollection referenceSequence = getReferenceArgumentCollection();
+    public ReferenceArgumentCollection referenceSequence = makeReferenceArgumentCollection();
 
-    public File REFERENCE_SEQUENCE = Defaults.REFERENCE_FASTA;
+    // This is retained for compatibility with existing code that depends on accessing it, and is populated
+    // after argument parsing using the value established by the user in the referenceSequence argument collection.
+    protected File REFERENCE_SEQUENCE = Defaults.REFERENCE_FASTA;
 
     @Argument(doc="Google Genomics API client_secrets.json file path.", common = true)
     public String GA4GH_CLIENT_SECRETS="client_secrets.json";
@@ -169,7 +167,7 @@ public abstract class CommandLineProgram {
 
     protected boolean requiresReference() { return false; }
 
-    protected ReferenceArgumentCollection getReferenceArgumentCollection() {
+    protected ReferenceArgumentCollection makeReferenceArgumentCollection() {
         return requiresReference() ?
                 new RequiredReferenceArgumentCollection() :
                 new OptionalReferenceArgumentCollection();
@@ -281,13 +279,13 @@ public abstract class CommandLineProgram {
 
         commandLineParser = getCommandLineParser();
 
-        boolean ret = false;
+        boolean ret;
         try {
             ret = commandLineParser.parseArguments(System.err, argv);
         } catch (CommandLineException e) {
             // Barclay command line parser throws on parsing/argument errors
-            System.err.println(e.getMessage());
             System.err.println(commandLineParser.usage(false,false));
+            System.err.println(e.getMessage());
             ret = false;
         }
 
@@ -299,10 +297,10 @@ public abstract class CommandLineProgram {
 
         final String[] customErrorMessages = customCommandLineValidation();
         if (customErrorMessages != null) {
+            System.err.print(commandLineParser.usage(false, false));
             for (final String msg : customErrorMessages) {
                 System.err.println(msg);
             }
-            System.err.print(commandLineParser.usage(false, false));
             return false;
         }
         return true;
@@ -331,7 +329,7 @@ public abstract class CommandLineProgram {
                         new LegacyCommandLineArgumentParser(this) :
                         new CommandLineArgumentParser(this,
                             Collections.EMPTY_LIST,
-                            new HashSet<>(Arrays.asList(CommandLineParserOptions.APPEND_TO_COLLECTIONS)));
+                            new HashSet<>(Collections.singleton(CommandLineParserOptions.APPEND_TO_COLLECTIONS)));
         }
         return commandLineParser;
     }
@@ -347,9 +345,8 @@ public abstract class CommandLineProgram {
      * @return true if the legacy parser should be used
      */
     public static boolean useLegacyParser(final Class<?> clazz) {
-        String legacyPropertyValue = null;
         if (useLegacyParser == null) {
-            legacyPropertyValue = System.getProperty(PROPERTY_USE_LEGACY_PARSER);
+            String legacyPropertyValue = legacyPropertyValue = System.getProperty(PROPERTY_USE_LEGACY_PARSER);
             if (null == legacyPropertyValue){
                 Properties props = PropertyUtils.loadPropertiesFile(PICARD_CMDLINE_PROPERTIES_FILE, clazz);
                 if (props != null) {
@@ -397,7 +394,7 @@ public abstract class CommandLineProgram {
     }
 
     /**
-     * Determine if a class has wbe documentation based on its package name
+     * Determine if a class has web documentation based on its package name
      *
      * @param clazz
      * @return true if the class has web documentation
