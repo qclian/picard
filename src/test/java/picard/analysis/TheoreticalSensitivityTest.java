@@ -207,7 +207,7 @@ public class TheoreticalSensitivityTest {
     }
 
     @Test(dataProvider = "hetSensDataProvider")
-    public void testHetSensTargeted(final double expected, final File metricsFile) throws Exception{
+    public void testHetSensTargeted(final double expected, final File metricsFile) throws Exception {
         final double tolerance = 0.000_000_01;
 
         final MetricsFile Metrics = new MetricsFile();
@@ -216,13 +216,130 @@ public class TheoreticalSensitivityTest {
         final Histogram depthHistogram = histograms.get(0);
         final Histogram qualityHistogram = histograms.get(1);
 
-        final double [] depthDistribution = TheoreticalSensitivity.normalizeHistogram(depthHistogram);
-        final double [] qualityDistribution = TheoreticalSensitivity.normalizeHistogram(qualityHistogram);
+        final double[] depthDistribution = TheoreticalSensitivity.normalizeHistogram(depthHistogram);
+        final double[] qualityDistribution = TheoreticalSensitivity.normalizeHistogram(qualityHistogram);
 
         final int sampleSize = 1_000;
         final double logOddsThreshold = 3.0;
 
         final double result = TheoreticalSensitivity.hetSNPSensitivity(depthDistribution, qualityDistribution, sampleSize, logOddsThreshold);
         Assert.assertEquals(result, expected, tolerance);
+    }
+
+    @DataProvider(name = "TheoreticalSensitivityConstantDepthDataProvider")
+    public Object[][] fractionalAlleleSensDataProvider() {
+
+        // highDepthHighQuality have uniform qualities of 45, and uniform depth of 5000.
+        final File highDepthHighQuality = new File(TEST_DIR, "highDepthHighQuality.wgs_metrics");
+
+        // lowDepthHighQuality has uniform qualities of 30, and uniform depth of 30.
+        final File lowDepthHighQuality = new File(TEST_DIR, "lowDepthHighQuality.wgs_metrics");
+
+        final File handGenerated = new File(TEST_DIR, "hand_generated.wgs_metrics");
+
+        //These magic numbers come from a separate implementation of the code in R.
+        return new Object[][]{
+                // expected sensitivity, metrics file, allele fraction, constant depth, sample size.
+                {1.00, highDepthHighQuality, .5, 30, 10000},
+                {1.00, highDepthHighQuality, .5, 30, 10000},
+                {0.817, highDepthHighQuality, .1, 30, 10000},  // This test is a bit absurd
+                {0.04, highDepthHighQuality, .01, 30, 10000},
+                {0.04, highDepthHighQuality, .01, 30, 10000},
+                {0.036, highDepthHighQuality, .01, 30, 10000},
+                {0.97, highDepthHighQuality, .001, 10000, 10000},
+                {0.079, highDepthHighQuality, .001, 1000, 10000},
+                {0.26, lowDepthHighQuality, 0.1, 10, 10000}
+        };
+    }
+
+    @Test(dataProvider = "TheoreticalSensitivityConstantDepthDataProvider")
+    public void testSensitivityAtConstantDepth(final double expected, final File metricsFile, final double alleleFraction, final int depth, final int sampleSize) throws Exception {
+        // This tests Theoretical Sensitivity assuming a uniform depth with a distribution of base quality scores.
+        // Because this only tests sensitivity at a constant depth, we use this for testing the code at high depths.
+        final double tolerance = 0.01;
+        final MetricsFile Metrics = new MetricsFile();
+        Metrics.read(new FileReader(metricsFile));
+        final List<Histogram> histograms = Metrics.getAllHistograms();
+        final Histogram qualityHistogram = histograms.get(1);
+
+        final double[] qualityDistribution = TheoreticalSensitivity.normalizeHistogram(qualityHistogram);
+
+        for(int i = 0;i < 3;i++) {
+            double result = TheoreticalSensitivity.sensitivityAtConstantDepth(depth, qualityDistribution, 3, sampleSize, alleleFraction);
+
+            System.out.println(i + " " + result);
+            Assert.assertEquals(result, expected, tolerance);
+        }
+    }
+
+    @DataProvider(name = "TheoreticalSensitivityDataProvider")
+    public Object[][] arbFracSensDataProvider() {
+        final File highDepthHighQuality = new File(TEST_DIR, "highDepthHighQuality.wgs_metrics");
+        final File lowDepthHighQuality = new File(TEST_DIR, "lowDepthHighQuality.wgs_metrics");
+        final File handGenerated = new File(TEST_DIR, "hand_generated.wgs_metrics");
+
+        //These magic numbers come from a separate implementation of the code in R.
+        return new Object[][]{
+                {1.00, highDepthHighQuality, .5, 10000},
+                {0.94, lowDepthHighQuality,  .5, 10000},
+                {0.62, lowDepthHighQuality,  .2, 10000},
+                {0.26, lowDepthHighQuality,  .1, 10000}
+        };
+    }
+
+    @Test(dataProvider = "TheoreticalSensitivityDataProvider")
+    public void testSensitivity(final double expected, final File metricsFile, final double alleleFraction, final int sampleSize) throws Exception {
+        // This tests Theoretical Sensitivity using distributions on both base quality scores
+        // and the depth histogram.
+
+        final double tolerance = 0.01;
+
+        final MetricsFile Metrics = new MetricsFile();
+        Metrics.read(new FileReader(metricsFile));
+        final List<Histogram> histograms = Metrics.getAllHistograms();
+        final Histogram depthHistogram = histograms.get(0);
+        final Histogram qualityHistogram = histograms.get(1);
+
+        final double[] qualityDistribution = TheoreticalSensitivity.normalizeHistogram(qualityHistogram);
+        final double[] depthDistribution = TheoreticalSensitivity.normalizeHistogram(depthHistogram);
+
+        final double result = TheoreticalSensitivity.theoreticalSensitivity(depthDistribution, qualityDistribution, sampleSize, 3, alleleFraction);
+
+        Assert.assertEquals(result, expected, tolerance);
+    }
+
+    @DataProvider(name = "equivalanceHetVsArbitrary")
+    public Object[][] equivalenceHetVsFull() {
+        final File wgsMetricsFile = new File(TEST_DIR, "test_Solexa-332667.wgs_metrics");
+        final File hsMetricsFile = new File(TEST_DIR, "test_NexPond-359781.hsMetrics");
+        final File targetedMetricsFile = new File(TEST_DIR, "test_25103070136.targeted_pcr_metrics");
+        final File wgsSampledMetricsFile = new File(TEST_DIR, "test_Solexa-316269_sampled.wgs_metrics");
+
+        //These magic numbers come from a separate implementation of the code in R.
+        return new Object[][] {
+                {wgsMetricsFile, 0.01},
+                {hsMetricsFile, 0.01},
+                {targetedMetricsFile, 0.03},  // This uses a very large tolerance because Het and TS differ at high depths.
+                {wgsSampledMetricsFile, 0.01}
+        };
+    }
+
+    @Test (dataProvider = "equivalanceHetVsArbitrary")
+    public void testHetVsArbitrary(final File metricsFile, final double tolerance) throws Exception {
+        // This tests Theoretical Sensitivity using distributions on both base quality scores
+        // and the depth histogram.
+        final MetricsFile Metrics = new MetricsFile();
+        Metrics.read(new FileReader(metricsFile));
+        final List<Histogram> histograms = Metrics.getAllHistograms();
+        final Histogram depthHistogram = histograms.get(0);
+        final Histogram qualityHistogram = histograms.get(1);
+
+        final double[] qualityDistribution = TheoreticalSensitivity.normalizeHistogram(qualityHistogram);
+        final double[] depthDistribution = TheoreticalSensitivity.normalizeHistogram(depthHistogram);
+
+        final double resultFromTS = TheoreticalSensitivity.theoreticalSensitivity(depthDistribution, qualityDistribution, 10000, 3, 0.5);
+        final double resultFromTHS = TheoreticalSensitivity.hetSNPSensitivity(depthDistribution, qualityDistribution, 1000, 3);
+
+        Assert.assertEquals(resultFromTHS, resultFromTS, tolerance);
     }
 }
