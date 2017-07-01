@@ -166,6 +166,7 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
         @NoMergingKeepsValue
         protected final int theoreticalHetSensitivitySampleSize;
 
+        @NoMergingKeepsValue
         protected TheoreticalSensitivityMetrics theoreticalSensitivityMetrics = new TheoreticalSensitivityMetrics();
 
         /**
