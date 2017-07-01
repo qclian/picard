@@ -43,6 +43,7 @@ import picard.filter.CountingDuplicateFilter;
 import picard.filter.CountingFilter;
 import picard.filter.CountingMapQFilter;
 import picard.filter.CountingPairedFilter;
+import picard.sam.markduplicates.UmiMetrics;
 import picard.util.MathUtil;
 
 import java.io.File;
@@ -118,6 +119,9 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
     @Option(doc="Sample Size used for Theoretical Het Sensitivity sampling. Default is 10000.", optional = true)
     public int SAMPLE_SIZE=10000;
 
+    @Option(doc="Output for Theoretical Sensitivity metrics.  Default is null.", optional = true)
+    public File THEORETICAL_SENSITIVITY_OUTPUT;
+
     @Option(doc = "If true, fast algorithm is used.")
     public boolean USE_FAST_ALGORITHM = false;
 
@@ -162,6 +166,13 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
         @NoMergingKeepsValue
         protected final int theoreticalHetSensitivitySampleSize;
 
+        protected TheoreticalSensitivityMetrics theoreticalSensitivityMetrics = new TheoreticalSensitivityMetrics();
+
+        /**
+         */
+        @MergingIsManual
+        protected final File theoreticalSensitivityOutput;
+
         /**
          * Create an instance of this metric that is not mergeable.
          */
@@ -172,6 +183,7 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
             unfilteredBaseQHistogram            = null;
             theoreticalHetSensitivitySampleSize = -1;
             coverageCap                         = -1;
+            theoreticalSensitivityOutput        = null;
         }
 
         /**
@@ -202,13 +214,15 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
                           final double pctExcludeTotal,
                           final int coverageCap,
                           final Histogram<Integer> unfilteredBaseQHistogram,
-                          final int theoreticalHetSensitivitySampleSize) {
+                          final int theoreticalHetSensitivitySampleSize,
+                          final File theoreticalSensitivityOutput) {
             this.intervals      = intervals.uniqued();
             this.highQualityDepthHistogram = highQualityDepthHistogram;
             this.unfilteredDepthHistogram = unfilteredDepthHistogram;
             this.unfilteredBaseQHistogram = unfilteredBaseQHistogram;
             this.coverageCap    = coverageCap;
             this.theoreticalHetSensitivitySampleSize = theoreticalHetSensitivitySampleSize;
+            this.theoreticalSensitivityOutput = theoreticalSensitivityOutput;
 
             PCT_EXC_MAPQ     = pctExcludedByMapq;
             PCT_EXC_DUPE     = pctExcludedByDupes;
@@ -407,6 +421,11 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
                 final double[] baseQDoubleArray = TheoreticalSensitivity.normalizeHistogram(unfilteredBaseQHistogram);
                 HET_SNP_SENSITIVITY = TheoreticalSensitivity.hetSNPSensitivity(depthDoubleArray, baseQDoubleArray, theoreticalHetSensitivitySampleSize, LOG_ODDS_THRESHOLD);
                 HET_SNP_Q = QualityUtil.getPhredScoreFromErrorProbability((1 - HET_SNP_SENSITIVITY));
+
+                if(theoreticalSensitivityOutput == null) {
+                    theoreticalSensitivityMetrics.SENSITIVITY_AT_0_1 = TheoreticalSensitivity.theoreticalSensitivity(depthDoubleArray, baseQDoubleArray, theoreticalHetSensitivitySampleSize, LOG_ODDS_THRESHOLD, 0.1);
+                    theoreticalSensitivityMetrics.SENSITIVITY_AT_0_5 = TheoreticalSensitivity.theoreticalSensitivity(depthDoubleArray, baseQDoubleArray, theoreticalHetSensitivitySampleSize, LOG_ODDS_THRESHOLD, 0.1);
+                }
             }
         }
     }
@@ -467,6 +486,10 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
         processor.addToMetricsFile(out, INCLUDE_BQ_HISTOGRAM, dupeFilter, mapqFilter, pairFilter);
         out.write(OUTPUT);
 
+        if(THEORETICAL_SENSITIVITY_OUTPUT != null) {
+            //collector.collectWgsMetrics.theoreticalSensitivityMetrics
+        }
+
         return 0;
     }
 
@@ -511,7 +534,8 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
                                             final double pctTotal,
                                             final int coverageCap,
                                             final Histogram<Integer> unfilteredBaseQHistogram,
-                                            final int theoreticalHetSensitivitySampleSize) {
+                                            final int theoreticalHetSensitivitySampleSize,
+                                            final File theoreticalSensitivityOutput) {
         return new WgsMetrics(
                 intervals,
                 highQualityDepthHistogram,
@@ -525,7 +549,8 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
                 pctTotal,
                 coverageCap,
                 unfilteredBaseQHistogram,
-                theoreticalHetSensitivitySampleSize
+                theoreticalHetSensitivitySampleSize,
+                theoreticalSensitivityOutput
         );
     }
 
@@ -540,7 +565,8 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
                                           final long basesExcludedByCapping,
                                           final int coverageCap,
                                           final Histogram<Integer> unfilteredBaseQHistogram,
-                                          final int theoreticalHetSensitivitySampleSize) {
+                                          final int theoreticalHetSensitivitySampleSize,
+                                          final File theoreticalSensitivityOutput) {
         final double total = highQualityDepthHistogram.getSum();
         final double totalWithExcludes = total + basesExcludedByDupes + basesExcludedByMapq + basesExcludedByPairing + basesExcludedByBaseq + basesExcludedByOverlap + basesExcludedByCapping;
 
@@ -565,7 +591,8 @@ static final String USAGE_DETAILS = "<p>This tool collects metrics about the fra
                 pctTotal,
                 coverageCap,
                 unfilteredBaseQHistogram,
-                theoreticalHetSensitivitySampleSize
+                theoreticalHetSensitivitySampleSize,
+                theoreticalSensitivityOutput
         );
     }
 

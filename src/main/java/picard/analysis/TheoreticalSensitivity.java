@@ -24,6 +24,7 @@
 
 package picard.analysis;
 
+import htsjdk.samtools.metrics.MetricBase;
 import htsjdk.samtools.util.Histogram;
 import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.ProgressLogger;

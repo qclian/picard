@@ -103,9 +103,10 @@ public class CollectWgsMetricsWithNonZeroCoverage extends CollectWgsMetrics {
                                              final double pctTotal,
                                              final int coverageCap,
                                              final Histogram<Integer> unfilteredBaseQHistogram,
-                                             final int sampleSize) {
+                                             final int sampleSize,
+                                             final File theoreticalSensitivityOutput) {
             super(intervals, highQualityDepthHistogram, unfilteredDepthHistogram, pctExcludedByMapq, pctExcludedByDupes, pctExcludedByPairing, pctExcludedByBaseq,
-                    pctExcludedByOverlap, pctExcludedByCapping, pctTotal, coverageCap, unfilteredBaseQHistogram, sampleSize);
+                    pctExcludedByOverlap, pctExcludedByCapping, pctTotal, coverageCap, unfilteredBaseQHistogram, sampleSize, theoreticalSensitivityOutput);
         }
     }
 
@@ -164,7 +165,8 @@ public class CollectWgsMetricsWithNonZeroCoverage extends CollectWgsMetrics {
                                             final double pctTotal,
                                             final int coverageCap,
                                             final Histogram<Integer> unfilteredBaseQHistogram,
-                                            final int sampleSize) {
+                                            final int sampleSize,
+                                            final File theoreticalSensitivityOutput) {
         return new WgsMetricsWithNonZeroCoverage(
                 intervals,
                 highQualityDepthHistogram,
@@ -178,7 +180,8 @@ public class CollectWgsMetricsWithNonZeroCoverage extends CollectWgsMetrics {
                 pctTotal,
                 coverageCap,
                 unfilteredBaseQHistogram,
-                sampleSize);
+                sampleSize,
+                theoreticalSensitivityOutput);
     }
 
     @Override

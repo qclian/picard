@@ -41,7 +41,7 @@ public class WgsMetricsTest {
                 buildIntervalList(-1, -1),
                 emptyDepthHistogram(), emptyDepthHistogram(),
                 0, 0, 0, 0, 0, 0, 0, 1000000,
-                null, -1
+                null, -1, null
         );
     }
 
@@ -56,7 +56,7 @@ public class WgsMetricsTest {
                 40d * countScale / count, 50d * countScale / count, 60d * countScale / count,
                 totalExcluded / (double) (count + totalExcluded),
                 1000000,
-                null, -1
+                null, -1, null
         );
     }
 
@@ -76,7 +76,7 @@ public class WgsMetricsTest {
                 40d * countScale / count, 50d * countScale / count, 60d * countScale / count,
                 totalExcluded / (double) (count + totalExcluded),
                 100000,
-                null, -1
+                null, -1, null
         );
     }
 

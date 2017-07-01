@@ -30,6 +30,8 @@ import picard.cmdline.CommandLineProgramProperties;
 import picard.cmdline.Option;
 import picard.cmdline.programgroups.Metrics;
 
+import java.io.File;
+
 import static picard.cmdline.StandardOptionDefinitions.MINIMUM_MAPPING_QUALITY_SHORT_NAME;
 
 /**
@@ -105,9 +107,10 @@ public class CollectRawWgsMetrics extends CollectWgsMetrics{
                              final double pctTotal,
                              final int coverageCap,
                              final Histogram<Integer> unfilteredBaseQHistogram,
-                             final int sampleSize) {
+                             final int sampleSize,
+                             final File theoreticalSensitivityOutput) {
             super(intervals, highQualityDepthHistogram, unfilteredDepthHistogram, pctExcludedByMapq, pctExcludedByDupes, pctExcludedByPairing, pctExcludedByBaseq,
-                    pctExcludedByOverlap, pctExcludedByCapping, pctTotal, coverageCap, unfilteredBaseQHistogram, sampleSize);
+                    pctExcludedByOverlap, pctExcludedByCapping, pctTotal, coverageCap, unfilteredBaseQHistogram, sampleSize, theoreticalSensitivityOutput);
         }
     }
 
@@ -124,7 +127,8 @@ public class CollectRawWgsMetrics extends CollectWgsMetrics{
                                             final double pctTotal,
                                             final int coverageCap,
                                             final Histogram<Integer> unfilteredBaseQHistogram,
-                                            final int sampleSize) {
+                                            final int sampleSize,
+                                            final File theoreticalSensitivityOutput) {
         return new RawWgsMetrics(
                 intervals,
                 highQualityDepthHistogram,
@@ -138,7 +142,8 @@ public class CollectRawWgsMetrics extends CollectWgsMetrics{
                 pctTotal,
                 coverageCap,
                 unfilteredBaseQHistogram,
-                sampleSize);
+                sampleSize,
+                theoreticalSensitivityOutput);
     }
 
 }

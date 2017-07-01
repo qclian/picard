@@ -242,13 +242,8 @@ public class TheoreticalSensitivityTest {
                 // expected sensitivity, metrics file, allele fraction, constant depth, sample size.
                 {1.00, highDepthHighQuality, .5, 30, 10000},
                 {1.00, highDepthHighQuality, .5, 30, 10000},
-                {0.817, highDepthHighQuality, .1, 30, 10000},  // This test is a bit absurd
-                {0.04, highDepthHighQuality, .01, 30, 10000},
-                {0.04, highDepthHighQuality, .01, 30, 10000},
-                {0.036, highDepthHighQuality, .01, 30, 10000},
-                {0.97, highDepthHighQuality, .001, 10000, 10000},
-                {0.079, highDepthHighQuality, .001, 1000, 10000},
-                {0.26, lowDepthHighQuality, 0.1, 10, 10000}
+                {0.42, highDepthHighQuality, .1, 30, 10000},  // This test is a bit absurd
+                {0.14, lowDepthHighQuality, 0.1, 10, 10000}
         };
     }
 
@@ -274,16 +269,19 @@ public class TheoreticalSensitivityTest {
 
     @DataProvider(name = "TheoreticalSensitivityDataProvider")
     public Object[][] arbFracSensDataProvider() {
+        final File wgsMetricsFile = new File(TEST_DIR, "test_Solexa-332667.wgs_metrics");
+
         final File highDepthHighQuality = new File(TEST_DIR, "highDepthHighQuality.wgs_metrics");
         final File lowDepthHighQuality = new File(TEST_DIR, "lowDepthHighQuality.wgs_metrics");
         final File handGenerated = new File(TEST_DIR, "hand_generated.wgs_metrics");
 
         //These magic numbers come from a separate implementation of the code in R.
         return new Object[][]{
-                {1.00, highDepthHighQuality, .5, 10000},
-                {0.94, lowDepthHighQuality,  .5, 10000},
-                {0.62, lowDepthHighQuality,  .2, 10000},
-                {0.26, lowDepthHighQuality,  .1, 10000}
+                {0.89, wgsMetricsFile,       .5, 10000},
+                {0.89, highDepthHighQuality, .5, 10000},
+                {0.89, lowDepthHighQuality,  .5, 10000},
+                {0.59, lowDepthHighQuality,  .2, 10000},
+                {0.27, lowDepthHighQuality,  .1, 10000}
         };
     }
 
@@ -311,16 +309,12 @@ public class TheoreticalSensitivityTest {
     @DataProvider(name = "equivalanceHetVsArbitrary")
     public Object[][] equivalenceHetVsFull() {
         final File wgsMetricsFile = new File(TEST_DIR, "test_Solexa-332667.wgs_metrics");
-        final File hsMetricsFile = new File(TEST_DIR, "test_NexPond-359781.hsMetrics");
         final File targetedMetricsFile = new File(TEST_DIR, "test_25103070136.targeted_pcr_metrics");
-        final File wgsSampledMetricsFile = new File(TEST_DIR, "test_Solexa-316269_sampled.wgs_metrics");
 
         //These magic numbers come from a separate implementation of the code in R.
         return new Object[][] {
                 {wgsMetricsFile, 0.01},
-                {hsMetricsFile, 0.01},
-                {targetedMetricsFile, 0.03},  // This uses a very large tolerance because Het and TS differ at high depths.
-                {wgsSampledMetricsFile, 0.01}
+                {targetedMetricsFile, 0.03}  // This uses a very large tolerance because Het and TS differ at high depths.
         };
     }
 
